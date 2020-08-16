@@ -22,8 +22,16 @@
 - name: edit freshclam.conf
   lineinfile:
     path: /etc/freshclam.conf
-    regexp: '^.*NotifyClamd'
-    line: 'NotifyClamd /etc/clamd.d/scan.conf'
+    backrefs: yes
+    regexp: '{{ item.regexp }}'
+    line: '{{ item.line }}'
+  with_items:
+    - regexp: '^#(NotifyClamd .*)$'
+      line: '\1'
+    - regexp: '^#(UpdateLogFile .*)$'
+      line: '\1'
+    - regexp: '^#(LogTime .*)$'
+      line: '\1'
   when: clamav_enable_daemon
   tags: clamav
 
@@ -41,6 +49,10 @@
     - regexp: '^#(ExcludePath \^/proc/)$'
       line: '\1'
     - regexp: '^#(ExcludePath \^/sys/)$'
+      line: '\1'
+    - regexp: '^#(LogFile .*)$'
+      line: '\1'
+    - regexp: '^#(LogTime .*)$'
       line: '\1'
   notify: restart clamd@scan service
   when: clamav_enable_daemon

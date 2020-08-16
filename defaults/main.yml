@@ -1,0 +1,3 @@
+---
+# defaults file for ansible-role-clamav
+clamav_enable_daemon: no

@@ -1,0 +1,55 @@
+---
+# tasks file for ansible-role-clamav
+- name: install epel repository
+  yum:
+    name: epel-release
+  tags: clamav
+
+- name: install clamav package
+  yum:
+    name:
+      - clamav
+      - clamav-update
+      - clamd
+  tags: clamav
+
+- name: init cv database
+  command: freshclam
+  args:
+    creates: /var/lib/clamav/main.cvd
+  tags: clamav
+
+- name: edit freshclam.conf
+  lineinfile:
+    path: /etc/freshclam.conf
+    regexp: '^.*NotifyClamd'
+    line: 'NotifyClamd /etc/clamd.d/scan.conf'
+  when: clamav_enable_daemon
+  tags: clamav
+
+- name: edit scan.conf
+  lineinfile:
+    path: /etc/clamd.d/scan.conf
+    backrefs: yes
+    regexp: '{{ item.regexp }}'
+    line: '{{ item.line }}'
+  with_items:
+    - regexp: '^#(LocalSocket .*)$'
+      line: '\1'
+    - regexp: '^User'
+      line: 'User root'
+    - regexp: '^#(ExcludePath \^/proc/)$'
+      line: '\1'
+    - regexp: '^#(ExcludePath \^/sys/)$'
+      line: '\1'
+  notify: restart clamd@scan service
+  when: clamav_enable_daemon
+  tags: clamav
+
+- name: start clamd@scan service
+  service:
+    name: clamd@scan
+    state: started
+    enabled: yes
+  when: clamav_enable_daemon
+  tags: clamav

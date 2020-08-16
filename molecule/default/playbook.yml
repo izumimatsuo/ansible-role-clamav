@@ -1,0 +1,7 @@
+---
+- name: Converge
+  hosts: all
+  vars:
+    clamav_enable_daemon: yes
+  roles:
+    - role: ansible-role-clamav

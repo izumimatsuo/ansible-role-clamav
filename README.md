@@ -1,4 +1,4 @@
-# ansible-role-clamav
+# ansible-role-clamav [![Build Status](https://travis-ci.org/izumimatsuo/ansible-role-clamav.svg?branch=master)](https://travis-ci.org/izumimatsuo/ansible-role-clamav)
 
 CentOS 7 に clamav を導入する ansible role です。
 
